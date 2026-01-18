@@ -1,0 +1,12 @@
+defaults:
+  - _self_
+  - embedding: gemini
+  - db: pinecone
+  - llm: gemini
+  - chunking: default
+  - retriever: default
+  - logging: default
+
+app:
+  title: "CiteRAG"
+  description: "Upload text -> Ask questions -> Get cited answers"

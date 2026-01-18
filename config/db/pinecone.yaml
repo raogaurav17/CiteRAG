@@ -1,0 +1,5 @@
+index_name: citerag
+dimension: 3072
+metric: cosine
+cloud: aws
+region: us-east-1

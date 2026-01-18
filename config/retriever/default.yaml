@@ -1,0 +1,6 @@
+top_k: 10
+mmr_lambda: 0.5 # diversity parameter
+rerank:
+  enabled: true
+  top_n: 3
+  model: "rerank-english-v3.0"
