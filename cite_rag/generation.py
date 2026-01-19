@@ -107,8 +107,9 @@ Answer:"""
         output_t = len(answer) // 4
         total_t = input_t + output_t
 
-        # Gemini free tier has no direct cost
-        cost = 0.0
+        # Calculate cost at rate from config (only input tokens are charged)
+        cost_per_million = cfg.llm.cost_per_million_tokens
+        cost = (input_t / 1_000_000) * cost_per_million
 
         return answer.strip(), citations, total_t, cost
 

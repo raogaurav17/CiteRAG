@@ -1,1 +1,2 @@
 model: "gemini-embedding-001"
+cost_per_million_tokens: 0.15
