@@ -68,3 +68,31 @@ def get_vectorstore(cfg):
     )
 
     return vectorstore
+
+
+def clear_database(cfg):
+    """
+    Clear all documents from the Pinecone vector database.
+
+    Deletes all vectors from the index specified in the configuration.
+
+    Args:
+        cfg: Configuration object with database parameters
+    """
+    api_key = os.getenv("PINECONE_API_KEY")
+    if not api_key:
+        raise RuntimeError("PINECONE_API_KEY is not set")
+
+    pc = Pinecone(api_key=api_key)
+    index_name = cfg.db.index_name
+
+    try:
+        # Get the index
+        index = pc.Index(index_name)
+        
+        # Delete all vectors from the index
+        index.delete(delete_all=True)
+        
+        return True
+    except Exception as e:
+        raise RuntimeError(f"Failed to clear database: {str(e)}")

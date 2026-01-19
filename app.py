@@ -20,7 +20,7 @@ from omegaconf import DictConfig, OmegaConf
 import streamlit as st
 from dotenv import load_dotenv
 
-from cite_rag.vector_db import get_vectorstore
+from cite_rag.vector_db import get_vectorstore, clear_database
 from cite_rag.chunking import process_and_store_text
 from cite_rag.retrieval import build_retriever
 from cite_rag.generation import generate_grounded_answer
@@ -392,10 +392,16 @@ def main():
         uploaded_file = st.file_uploader("Upload .txt file (optional)", type=["txt"], label_visibility="collapsed")
     with col2:
         if st.button("🗑️ Clear DB", use_container_width=True):
-            # Reset vectorstore to force re-initialization on next use
-            if "vectorstore" in st.session_state:
-                del st.session_state.vectorstore
-            st.rerun()
+            try:
+                with st.spinner("🔄 Clearing remote database..."):
+                    clear_database(cfg)
+                # Reset vectorstore to force re-initialization
+                if "vectorstore" in st.session_state:
+                    del st.session_state.vectorstore
+                st.success("✅ Database cleared successfully")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Failed to clear database: {str(e)}")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     text_input = st.text_area("Enter your text", height=140, label_visibility="collapsed", placeholder="Paste text here (or upload above)")
