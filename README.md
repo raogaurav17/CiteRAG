@@ -10,7 +10,7 @@ Transform any document into an intelligent QA system. Upload text → Ask questi
 
 **Live Application:** https://citerag.streamlit.app/  
 **Public GitHub Repository:** https://github.com/raogaurav17/CiteRAG  
-**Portfolio/Resume:** [Your Link Here]
+**Portfolio/Resume:** [link](https://drive.google.com/file/d/1Yx94s16_yCBzLsI3_DTvLLjIrtx-Tysn/view?usp=sharing)
 
 ### Sample Workflow
 
@@ -497,7 +497,7 @@ MIT License - See [LICENSE](LICENSE)
 
 - GitHub: [@raogaurav17](https://github.com/raogaurav17)
 - Email: raogaurav17@gmail.com
-- [Portfolio / Resume Link](https://your-portfolio.com)
+- [Portfolio / Resume Link](https://drive.google.com/file/d/1Yx94s16_yCBzLsI3_DTvLLjIrtx-Tysn/view?usp=sharing)
 
 ---
 
