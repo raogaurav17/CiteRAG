@@ -421,34 +421,6 @@ For storing 100 chunks + 1 question:
 
 ---
 
-### Future Enhancements
-
-#### Short-term (1-2 weeks)
-
-- [ ] Deploy to Hugging Face Spaces or Render
-- [ ] Add temperature slider in UI
-- [ ] Implement query result caching
-- [ ] Support PDF uploads (pypdf)
-
-#### Medium-term (1-2 months)
-
-- [ ] Hybrid search (BM25 + semantic)
-- [ ] Multi-document type support (PDFs, images, tables)
-- [ ] User authentication & session management
-- [ ] Cost analytics dashboard
-- [ ] Streaming LLM output
-
-#### Long-term (3-6 months)
-
-- [ ] Local embedding option (SentenceTransformers)
-- [ ] Fine-tuning on domain-specific data
-- [ ] Automatic chunk size optimization
-- [ ] Multi-language support
-- [ ] Evaluation metrics (BLEU, ROUGE, METEOR)
-- [ ] A/B testing framework for models
-
----
-
 ### Known Issues & Workarounds
 
 | Issue                  | Root Cause                     | Workaround                        |
