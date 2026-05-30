@@ -6,12 +6,6 @@ Transform any document into an intelligent QA system. Upload text → Ask questi
 
 ---
 
-## Live Demo & Repository
-
-**Live Application:** https://citerag.streamlit.app/  
-**Public GitHub Repository:** https://github.com/raogaurav17/CiteRAG  
-**Portfolio/Resume:** [link](https://drive.google.com/file/d/1Yx94s16_yCBzLsI3_DTvLLjIrtx-Tysn/view?usp=sharing)
-
 ### Sample Workflow
 
 1. **Upload & Index**: Paste or upload .txt documents
