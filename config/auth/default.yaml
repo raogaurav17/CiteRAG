@@ -1,0 +1,5 @@
+default_role: viewer
+first_user_role: admin
+allow_self_signup: true
+scope_documents_to_owner: true
+admin_can_view_all_documents: true

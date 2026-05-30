@@ -20,6 +20,8 @@ from omegaconf import DictConfig, OmegaConf
 import streamlit as st
 from dotenv import load_dotenv
 
+from cite_rag.auth import authenticate_user, create_user, ensure_auth_storage, is_admin
+from cite_rag.db import record_event
 from cite_rag.vector_db import get_vectorstore, clear_database
 from cite_rag.chunking import process_and_store_text
 from cite_rag.retrieval import build_retriever
@@ -337,6 +339,81 @@ def render_header(title: str, description: str):
     """, unsafe_allow_html=True)
 
 
+def render_auth_gate(cfg):
+    """Render login and signup forms until a user is authenticated."""
+
+    st.markdown('<div class="section-header">🔐 Access Control</div>', unsafe_allow_html=True)
+    st.info("Sign in to access your scoped knowledge base. The first account created becomes an admin.")
+
+    login_tab, signup_tab = st.tabs(["Log in", "Create account"])
+
+    with login_tab:
+        with st.form("login_form"):
+            email = st.text_input("Email", placeholder="you@example.com")
+            password = st.text_input("Password", type="password")
+            submitted = st.form_submit_button("Sign in", use_container_width=True)
+
+        if submitted:
+            try:
+                user = authenticate_user(cfg, email, password)
+                if user:
+                    st.session_state.current_user = user
+                    st.session_state.authenticated = True
+                    st.success(f"Welcome back, {user['display_name']}.")
+                    st.rerun()
+                else:
+                    st.error("Invalid email or password.")
+            except Exception as exc:
+                st.error(f"Login failed: {exc}")
+
+    with signup_tab:
+        allow_signup = getattr(getattr(cfg, "auth", None), "allow_self_signup", True)
+        if not allow_signup:
+            st.warning("Self-signup is disabled for this deployment.")
+            return
+
+        with st.form("signup_form"):
+            display_name = st.text_input("Display name", placeholder="Your name")
+            email = st.text_input("Email address", placeholder="you@example.com")
+            password = st.text_input("Password", type="password")
+            confirm_password = st.text_input("Confirm password", type="password")
+            submitted = st.form_submit_button("Create account", use_container_width=True)
+
+        if submitted:
+            if password != confirm_password:
+                st.error("Passwords do not match.")
+                return
+
+            if not display_name.strip() or not email.strip() or not password:
+                st.warning("Fill in all fields to continue.")
+                return
+
+            try:
+                user = create_user(cfg, display_name, email, password)
+                st.session_state.current_user = user
+                st.session_state.authenticated = True
+                st.success(f"Account created for {user['display_name']}.")
+                st.rerun()
+            except Exception as exc:
+                st.error(f"Signup failed: {exc}")
+
+
+def render_user_sidebar(cfg, current_user):
+    """Render the signed-in user's account controls."""
+
+    with st.sidebar:
+        st.markdown("### Account")
+        st.write(f"**User:** {current_user['display_name']}")
+        st.write(f"**Email:** {current_user['email']}")
+        st.write(f"**Role:** {current_user['role']}")
+        if st.button("Log out", use_container_width=True):
+            record_event(cfg, current_user["id"], "logout")
+            st.session_state.authenticated = False
+            st.session_state.current_user = None
+            st.session_state.pop("vectorstore", None)
+            st.rerun()
+
+
 def main():
     """Main application entry point."""
     # Clear Hydra global instance to prevent conflicts between Streamlit reruns
@@ -346,6 +423,13 @@ def main():
         pass
 
     cfg = load_config()
+
+    try:
+        ensure_auth_storage(cfg)
+    except Exception as exc:
+        st.set_page_config(page_title=cfg.app.title, layout="wide", initial_sidebar_state="expanded")
+        st.error(f"❌ Unable to initialize PostgreSQL auth storage: {exc}")
+        st.stop()
 
     # Configure logging with both console and file output
     if hasattr(cfg.logging, 'file') and cfg.logging.file:
@@ -374,6 +458,18 @@ def main():
     
     # Apply custom CSS
     init_custom_css()
+
+    if not st.session_state.get("authenticated"):
+        render_header(cfg.app.title, cfg.app.description)
+        render_auth_gate(cfg)
+        return
+
+    current_user = st.session_state.get("current_user")
+    if not current_user:
+        st.session_state.authenticated = False
+        st.rerun()
+
+    render_user_sidebar(cfg, current_user)
     
     # Render modern header
     render_header(cfg.app.title, cfg.app.description)
@@ -391,7 +487,7 @@ def main():
     with col1:
         uploaded_file = st.file_uploader("Upload .txt file (optional)", type=["txt"], label_visibility="collapsed")
     with col2:
-        if st.button("🗑️ Clear DB", use_container_width=True):
+        if st.button("🗑️ Clear DB", use_container_width=True, disabled=not is_admin(current_user)):
             try:
                 with st.spinner("🔄 Clearing remote database..."):
                     clear_database(cfg)
@@ -402,6 +498,8 @@ def main():
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Failed to clear database: {str(e)}")
+        if not is_admin(current_user):
+            st.caption("Admin only")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     text_input = st.text_area("Enter your text", height=140, label_visibility="collapsed", placeholder="Paste text here (or upload above)")
@@ -418,7 +516,22 @@ def main():
 
             if text:
                 with st.spinner(" Chunking → Embedding → Upserting..."):
-                    num_chunks, emb_tokens, emb_cost, emb_elapsed = process_and_store_text(text, vectorstore, cfg)
+                    num_chunks, emb_tokens, emb_cost, emb_elapsed = process_and_store_text(
+                        text,
+                        vectorstore,
+                        cfg,
+                        owner_context=current_user,
+                    )
+                record_event(
+                    cfg,
+                    current_user["id"],
+                    "upload",
+                    {
+                        "chunks": num_chunks,
+                        "embedding_tokens": emb_tokens,
+                        "embedding_cost": emb_cost,
+                    },
+                )
                 
                 # Display embedding metrics
                 st.markdown('<div class="answer-section">', unsafe_allow_html=True)
@@ -445,7 +558,7 @@ def main():
     if st.button("🔍 Generate Answer", use_container_width=True, type="primary") and query.strip():
         with st.spinner("🔎 Retrieving → Reranking → Generating..."):
             start_t = time.time()
-            retriever = build_retriever(vectorstore, cfg)
+            retriever = build_retriever(vectorstore, cfg, user_context=current_user)
 
             # Generate answer with citations from retrieved documents
             answer, citations, est_tokens, est_cost = generate_grounded_answer(retriever, query, cfg)

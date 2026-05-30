@@ -2,6 +2,8 @@ defaults:
   - _self_
   - embedding: gemini
   - db: pinecone
+  - postgres: default
+  - auth: default
   - llm: gemini
   - chunking: default
   - retriever: default

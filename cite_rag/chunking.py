@@ -5,15 +5,17 @@ Handles splitting documents into manageable chunks with overlap,
 and storing them in the vector database with metadata for citations.
 """
 
-from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
-from hashlib import md5
 import logging
 import time
+from hashlib import md5
+from typing import Any, Optional
+
+from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
 
 logger = logging.getLogger(__name__)
 
 
-def process_and_store_text(raw_text: str, vectorstore, cfg) -> tuple:
+def process_and_store_text(raw_text: str, vectorstore, cfg, owner_context: Optional[dict[str, Any]] = None) -> tuple:
     """
     Split text into overlapping chunks and store in vector database.
 
@@ -43,6 +45,8 @@ def process_and_store_text(raw_text: str, vectorstore, cfg) -> tuple:
     metadatas = []
     ids = []
 
+    owner_context = owner_context or {}
+
     for i, chunk in enumerate(chunks):
         chunk = chunk.strip()
         if not chunk:
@@ -55,7 +59,11 @@ def process_and_store_text(raw_text: str, vectorstore, cfg) -> tuple:
             "title": "Uploaded / Pasted Text",
             "section": "main",
             "position": i,
-            "content": chunk  # Stored for citation display
+            "content": chunk,  # Stored for citation display
+            "owner_id": owner_context.get("id"),
+            "owner_email": owner_context.get("email"),
+            "owner_role": owner_context.get("role"),
+            "owner_name": owner_context.get("display_name"),
         }
         texts.append(chunk)
         metadatas.append(metadata)

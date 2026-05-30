@@ -1,0 +1,7 @@
+database_url: ${oc.env:DATABASE_URL,}
+host: ${oc.env:POSTGRES_HOST,localhost}
+port: ${oc.env:POSTGRES_PORT,5432}
+dbname: ${oc.env:POSTGRES_DB,citerag}
+user: ${oc.env:POSTGRES_USER,citerag}
+password: ${oc.env:POSTGRES_PASSWORD,citerag}
+sslmode: ${oc.env:POSTGRES_SSLMODE,prefer}

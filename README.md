@@ -39,7 +39,7 @@ Transform any document into an intelligent QA system. Upload text → Ask questi
 
 ### Prerequisites
 
-- **Python 3.9+**
+- **Python 3.10+**
 - **API Keys**:
   - Google Gemini (`GOOGLE_API_KEY`)
   - Pinecone (`PINECONE_API_KEY`)
@@ -52,12 +52,12 @@ Transform any document into an intelligent QA system. Upload text → Ask questi
 git clone https://github.com/raogaurav17/CiteRAG.git
 cd CiteRAG
 
-# Create virtual environment
-python -m venv .venv
+# Create virtual environment with uv
+uv venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Configure environment
 cp .env.example .env
@@ -65,7 +65,24 @@ cp .env.example .env
 # GOOGLE_API_KEY=your_gemini_key
 # PINECONE_API_KEY=your_pinecone_key
 # COHERE_API_KEY=your_cohere_key (optional)
+# DATABASE_URL=postgresql://user:password@localhost:5432/citerag
 ```
+
+### Local PostgreSQL
+
+Start Postgres with Docker:
+
+```bash
+docker compose up -d postgres
+```
+
+Use this `.env` value for a local app run:
+
+```bash
+DATABASE_URL=postgresql://citerag:citerag@localhost:5432/citerag
+```
+
+The app will create the `users`, `auth_events`, and `documents` tables automatically on startup.
 
 ### Running the Application
 

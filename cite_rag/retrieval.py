@@ -5,13 +5,14 @@ Implements MMR (Maximal Marginal Relevance) search with optional
 Cohere reranking for improved relevance and diversity.
 """
 
+import os
+
 from langchain_classic.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 from langchain_pinecone import PineconeVectorStore
-import os
 
 
-def build_retriever(vectorstore: PineconeVectorStore, cfg):
+def build_retriever(vectorstore: PineconeVectorStore, cfg, user_context=None):
     """
     Build a retriever with optional reranking.
 
@@ -24,13 +25,15 @@ def build_retriever(vectorstore: PineconeVectorStore, cfg):
     """
     # Create base retriever using MMR strategy
     # MMR balances relevance and diversity to avoid redundant results
-    base_retriever = vectorstore.as_retriever(
-        search_type="mmr",
-        search_kwargs={
-            "k": cfg.retriever.top_k,
-            "lambda_mult": cfg.retriever.mmr_lambda
-        }
-    )
+    search_kwargs = {
+        "k": cfg.retriever.top_k,
+        "lambda_mult": cfg.retriever.mmr_lambda,
+    }
+
+    if user_context and user_context.get("role") != "admin":
+        search_kwargs["filter"] = {"owner_id": user_context["id"]}
+
+    base_retriever = vectorstore.as_retriever(search_type="mmr", search_kwargs=search_kwargs)
 
     # Optionally apply Cohere reranking for higher quality results
     if cfg.retriever.rerank.enabled:
