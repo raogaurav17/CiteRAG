@@ -9,18 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def process_and_store_text(raw_text: str, vectorstore, cfg, owner_context: Optional[dict[str, Any]] = None) -> tuple:
-    """
-    Split text into overlapping chunks and store in vector database.
-
-    Args:
-        raw_text: Raw document text to process
-        vectorstore: PineconeVectorStore instance for storage
-        cfg: Configuration object with chunking parameters
-        owner_context: Dictionary with details of the user uploading the text.
-
-    Returns:
-        Tuple of (num_chunks, embedding_tokens, embedding_cost, elapsed_time)
-    """
+    """ Split text into overlapping chunks and store in vector database. """
     start_time = time.time()
     
     # Split text using hierarchical separators to preserve document structure

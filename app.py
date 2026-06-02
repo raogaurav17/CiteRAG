@@ -167,12 +167,6 @@ def main():
         st.error(f"Unable to initialize PostgreSQL auth storage: {exc}")
         st.stop()
 
-    # Configure logging with both console and file output
-    if hasattr(cfg.logging, 'file') and cfg.logging.file:
-        log_dir = os.path.dirname(cfg.logging.file)
-        if log_dir:
-            os.makedirs(log_dir, exist_ok=True)
-
     handlers = [logging.StreamHandler()]
     if hasattr(cfg.logging, 'file') and cfg.logging.file:
         handlers.append(logging.FileHandler(cfg.logging.file, encoding="utf-8"))
@@ -239,7 +233,6 @@ def main():
         if not is_admin(current_user):
             st.caption("Admin only")
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     text_input = st.text_area("Enter your text", height=140, label_visibility="collapsed", placeholder="Paste text here (or upload above)")
     
     col_upload, col_clear = st.columns([4, 1])
@@ -290,7 +283,6 @@ def main():
     st.markdown('<div style="margin-top: 2rem;"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-header">Ask Your Question</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     query = st.text_input("Enter your question", placeholder="What does the document say about ...?", key="query_input", label_visibility="collapsed")
     
     if st.button("Generate Answer", use_container_width=True, type="primary") and query.strip():

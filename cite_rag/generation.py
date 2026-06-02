@@ -9,17 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def generate_grounded_answer(retriever, query: str, cfg):
-    """
-    Retrieve relevant documents and generate an answer with citations.
-
-    Args:
-        retriever: LangChain retriever (with optional reranking)
-        query: User's question
-        cfg: Configuration object with LLM parameters
-
-    Returns:
-        Tuple of (answer, citations, estimated_tokens, estimated_cost)
-    """
+    """ Retrieve relevant documents and generate an answer with citations. """
     start = time.time()
 
     try:

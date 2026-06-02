@@ -6,21 +6,8 @@ import time
 
 
 def get_vectorstore(cfg):
-    """
-    Initialize or retrieve existing Pinecone vectorstore.
+    """ Initialize or retrieve existing Pinecone vectorstore. """
 
-    Creates a new Pinecone index if it doesn't exist, initializes embeddings,
-    and returns a PineconeVectorStore instance for document storage and retrieval.
-
-    Args:
-        cfg: Configuration object with database and embedding parameters
-
-    Returns:
-        Initialized PineconeVectorStore instance
-
-    Raises:
-        RuntimeError: If PINECONE_API_KEY environment variable is not set
-    """
     # Initialize Pinecone client
     api_key = os.getenv("PINECONE_API_KEY")
     if not api_key:
@@ -64,14 +51,7 @@ def get_vectorstore(cfg):
 
 
 def clear_database(cfg):
-    """
-    Clear all documents from the Pinecone vector database.
-
-    Deletes all vectors from the index specified in the configuration.
-
-    Args:
-        cfg: Configuration object with database parameters
-    """
+    """ Clear all documents from the Pinecone vector database. """
     api_key = os.getenv("PINECONE_API_KEY")
     if not api_key:
         raise RuntimeError("PINECONE_API_KEY is not set")

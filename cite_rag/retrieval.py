@@ -6,17 +6,8 @@ from langchain_pinecone import PineconeVectorStore
 
 
 def build_retriever(vectorstore: PineconeVectorStore, cfg, user_context=None):
-    """
-    Build a retriever with optional reranking.
-
-    Args:
-        vectorstore: PineconeVectorStore instance for document retrieval
-        cfg: Configuration object with retrieval parameters
-        user_context: Optional dictionary with user details for filtering.
-
-    Returns:
-        LangChain retriever (base or with contextual compression/reranking)
-    """
+    """ Build a retriever with optional reranking. """
+    
     # Create base retriever using MMR strategy
     # MMR balances relevance and diversity to avoid redundant results
     search_kwargs = {
