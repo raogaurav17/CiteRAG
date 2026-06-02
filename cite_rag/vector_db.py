@@ -1,9 +1,4 @@
-"""
-Vector database initialization and management module.
 
-Manages Pinecone vector database setup, index creation, and embedding initialization
-using Google's Generative AI embeddings.
-"""
 
 from langchain_pinecone import PineconeVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings

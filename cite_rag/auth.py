@@ -1,6 +1,4 @@
-"""
-Authentication helpers backed by PostgreSQL.
-"""
+
 
 from __future__ import annotations
 
@@ -18,6 +16,7 @@ HASH_SCHEME = "pbkdf2_sha256"
 
 
 def ensure_auth_storage(cfg: Optional[Any] = None) -> None:
+    """Ensure the authentication database and tables are created."""
     initialize_schema(cfg)
 
 
@@ -54,10 +53,12 @@ def verify_password(password: str, stored_hash: str) -> bool:
         )
         return hmac.compare_digest(candidate_hash, expected_hash)
     except Exception:
+        # If the hash is malformed or any error occurs, deny access.
         return False
 
 
 def _row_to_user(row: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    """Format a database row into a user dictionary."""
     if not row:
         return None
 
@@ -73,6 +74,7 @@ def _row_to_user(row: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
 
 
 def get_user_by_email(cfg: Optional[Any], email: str) -> Optional[dict[str, Any]]:
+    """Fetch a user by their email address, ignoring case."""
     normalized_email = email.strip().lower()
     with db_cursor(cfg) as cursor:
         cursor.execute(
@@ -87,6 +89,7 @@ def get_user_by_email(cfg: Optional[Any], email: str) -> Optional[dict[str, Any]
 
 
 def count_users(cfg: Optional[Any]) -> int:
+    """Return the total number of users in the database."""
     with db_cursor(cfg) as cursor:
         cursor.execute("SELECT COUNT(*) AS count FROM users")
         return int(cursor.fetchone()["count"])
@@ -101,6 +104,7 @@ def create_user(cfg: Optional[Any], display_name: str, email: str, password: str
     auth_cfg = getattr(cfg, "auth", None)
     default_role = getattr(auth_cfg, "default_role", "viewer")
     first_user_role = getattr(auth_cfg, "first_user_role", "admin")
+    # Assign 'admin' role to the first user, 'viewer' to subsequent users.
     role = first_user_role if user_count == 0 else default_role
 
     user_id = str(uuid.uuid4())
@@ -129,6 +133,7 @@ def authenticate_user(cfg: Optional[Any], email: str, password: str) -> Optional
     if not verify_password(password, user["password_hash"]):
         return None
 
+    # On successful authentication, update the last login timestamp.
     with db_cursor(cfg) as cursor:
         cursor.execute(
             """
@@ -146,4 +151,5 @@ def authenticate_user(cfg: Optional[Any], email: str, password: str) -> Optional
 
 
 def is_admin(user: Optional[dict[str, Any]]) -> bool:
+    """Check if a user has the 'admin' role."""
     return bool(user and user.get("role") == "admin")

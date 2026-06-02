@@ -1,9 +1,4 @@
-"""
-Document retrieval module with optional reranking.
 
-Implements MMR (Maximal Marginal Relevance) search with optional
-Cohere reranking for improved relevance and diversity.
-"""
 
 import os
 
@@ -19,6 +14,7 @@ def build_retriever(vectorstore: PineconeVectorStore, cfg, user_context=None):
     Args:
         vectorstore: PineconeVectorStore instance for document retrieval
         cfg: Configuration object with retrieval parameters
+        user_context: Optional dictionary with user details for filtering.
 
     Returns:
         LangChain retriever (base or with contextual compression/reranking)
@@ -30,6 +26,7 @@ def build_retriever(vectorstore: PineconeVectorStore, cfg, user_context=None):
         "lambda_mult": cfg.retriever.mmr_lambda,
     }
 
+    # If a non-admin user is performing the search, filter by their owner_id.
     if user_context and user_context.get("role") != "admin":
         search_kwargs["filter"] = {"owner_id": user_context["id"]}
 

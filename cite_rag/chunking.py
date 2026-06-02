@@ -1,9 +1,4 @@
-"""
-Text chunking and vector storage module.
 
-Handles splitting documents into manageable chunks with overlap,
-and storing them in the vector database with metadata for citations.
-"""
 
 import logging
 import time
@@ -23,9 +18,10 @@ def process_and_store_text(raw_text: str, vectorstore, cfg, owner_context: Optio
         raw_text: Raw document text to process
         vectorstore: PineconeVectorStore instance for storage
         cfg: Configuration object with chunking parameters
+        owner_context: Dictionary with details of the user uploading the text.
 
     Returns:
-        Tuple of (num_chunks, embedding_tokens, embedding_cost)
+        Tuple of (num_chunks, embedding_tokens, embedding_cost, elapsed_time)
     """
     start_time = time.time()
     

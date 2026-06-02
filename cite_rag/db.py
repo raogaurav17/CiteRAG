@@ -1,7 +1,3 @@
-"""
-PostgreSQL helpers for authentication, authorization, and audit logging.
-"""
-
 from __future__ import annotations
 
 import json
@@ -14,6 +10,10 @@ from psycopg2.extras import RealDictCursor
 
 
 def _get_postgres_config(cfg: Optional[Any] = None) -> dict[str, Any]:
+    """
+    Construct PostgreSQL connection details from Hydra config and environment variables.
+    Environment variables take precedence.
+    """
     postgres_cfg = getattr(cfg, "postgres", None)
 
     return {
@@ -31,6 +31,7 @@ def get_connection(cfg: Optional[Any] = None):
     """Create a new PostgreSQL connection."""
 
     postgres = _get_postgres_config(cfg)
+    # Use a single DATABASE_URL if provided, otherwise build from components.
     if postgres["database_url"]:
         return psycopg2.connect(postgres["database_url"], cursor_factory=RealDictCursor)
 

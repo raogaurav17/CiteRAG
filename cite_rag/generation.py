@@ -1,9 +1,4 @@
-"""
-Answer generation module using Gemini LLM with citations.
 
-Generates grounded answers based on retrieved documents with inline citations,
-token estimation, and cost calculation.
-"""
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -101,13 +96,13 @@ Answer:"""
         elapsed = time.time() - start
 
         # Estimate token usage for cost tracking
-        # (Gemini doesn't reliably expose token counts)
+        # (Gemini doesn't reliably expose token counts, so this is a rough heuristic)
         input_chars = len(context) + len(query)
-        input_t = input_chars // 4 + 150
+        input_t = input_chars // 4 + 150  # Approx. tokens + prompt overhead
         output_t = len(answer) // 4
         total_t = input_t + output_t
 
-        # Calculate cost at rate from config (only input tokens are charged)
+        # Calculate cost at rate from config (only input tokens are charged for Gemini)
         cost_per_million = cfg.llm.cost_per_million_tokens
         cost = (input_t / 1_000_000) * cost_per_million
 
