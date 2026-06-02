@@ -35,7 +35,7 @@ def load_config() -> DictConfig:
     Load configuration from YAML files using Hydra.
     Clears the global Hydra instance to support Streamlit's re-run behavior.
     """
-    # Clear Hydra's global state to avoid conflicts during Streamlit's hot-reloads.
+    # Clear Hydra's global state to avoid conflicts reloads.
     try:
         GlobalHydra.instance().clear()
     except Exception:
