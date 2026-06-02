@@ -156,11 +156,6 @@ def render_user_sidebar(cfg, current_user):
 
 def main():
     """Main application entry point."""
-    # Clear Hydra global instance to prevent conflicts between Streamlit reruns
-    try:
-        GlobalHydra.instance().clear()
-    except Exception:
-        pass
 
     cfg = load_config()
 
@@ -169,7 +164,7 @@ def main():
         ensure_auth_storage(cfg)
     except Exception as exc:
         st.set_page_config(page_title=cfg.app.title, layout="wide", initial_sidebar_state="expanded")
-        st.error(f"❌ Unable to initialize PostgreSQL auth storage: {exc}")
+        st.error(f"Unable to initialize PostgreSQL auth storage: {exc}")
         st.stop()
 
     # Configure logging with both console and file output

@@ -1,5 +1,3 @@
-
-
 import os
 
 from langchain_classic.retrievers import ContextualCompressionRetriever

@@ -1,5 +1,3 @@
-
-
 import logging
 import time
 from hashlib import md5
